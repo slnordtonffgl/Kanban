@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Канбан-доска</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <h1>Канбан-доска</h1>
+  <p>Главная страница приложения.</p>
+  <p>База данных: {% if db_ok %}<strong>OK</strong>{% else %}Ошибка{% endif %}</p>
+</body>
+</html>
