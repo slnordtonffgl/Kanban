@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Пользователи · Админ{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1>Пользователи</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Логин</th>
+          <th>Роль</th>
+          <th>Статус</th>
+          <th>Создан</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.role }}</td>
+          <td>
+            {% if u.archived_at %}
+              <span class="badge badge-deleted">В архиве</span>
+            {% else %}
+              Активен
+            {% endif %}
+          </td>
+          <td>{{ u.created_at[:10] if u.created_at else '' }}</td>
+          <td class="actions-cell">
+             {% if u.archived_at %}
+              ...
+            {% elif u.role != 'admin'  %}
+              ...
+            {% endif %}
+
+            {% if u.role != 'admin' %}
+              <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" class="inline-form">
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-danger"
+                  onclick="return confirm('Удалить пользователя безвозвратно? Это действие нельзя отменить.')"
+                >
+                  Удалить навсегда
+                </button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

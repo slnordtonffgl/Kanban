@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
+    {% extends "base.html" %}
+
+{% block title %}Регистрация · Учебное веб‑приложение{% endblock %}
+
+{% block content %}
     <div class="card">
       <h1>Регистрация</h1>
 
@@ -39,5 +44,6 @@
         </p>
       {% endif %}
     </div>
+{% endblock %}
   </body>
 </html>

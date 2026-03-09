@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
+   {% extends "base.html" %}
+
+{% block title %}Настройки · Учебное веб‑приложение{% endblock %}
+
+{% block content %}
     <div class="card">
       <h1>Настройки</h1>
 
@@ -28,5 +33,6 @@
         <a href="{{ url_for('dashboard') }}">Вернуться в дашборд</a>
       </p>
     </div>
+{% endblock %}
   </body>
 </html>
