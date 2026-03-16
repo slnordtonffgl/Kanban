@@ -1,7 +1,44 @@
-from flask import session,
+from flask import session
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetim
+from datetime import datetime
 from db import get_conn
+
+def get_board_role(board_id):
+    """Вернуть роль текущего пользователя для доски: 'owner' или None."""
+    user = current_user()
+    if user is None:
+        return None
+
+    conn = get_conn()
+    board = conn.execute(
+        "SELECT owner_id FROM boards WHERE id = ?",
+        (board_id,),
+    ).fetchone()
+    conn.close()
+
+    if board is None:
+        return None
+
+    if board["owner_id"] == user["id"]:
+        return "owner"
+
+    # Позже сюда можно будет добавить проверки для приглашённых участников
+    return None
+
+def can_view_board(board_id):
+    """Можно ли просматривать эту доску."""
+    return get_board_role(board_id) is not None
+
+
+def can_edit_board(board_id):
+    """Можно ли редактировать доску (менять название, добавлять колонки и карточки)."""
+    role = get_board_role(board_id)
+    return role == "owner"
+
+
+def is_board_owner(board_id):
+    """Является ли текущий пользователь владельцем доски."""
+    return get_board_role(board_id) == "owner"    
 
 def create_user(username, password, role):
     """

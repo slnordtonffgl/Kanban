@@ -1,21 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <title>Дашборд</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-  </head>
-  <body>
-    {% extends "base.html" %}
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+{% extends "base.html" %}
 
-{% block title %}Дашборд · Учебное веб‑приложение{% endblock %}
+{% block title %}Дашборд · Учебное веб-приложение{% endblock %}
 
 {% block content %}
+  <section class="card">
+    <h1>Ваши доски</h1>
+
+    <p>
+      <a href="{{ url_for('board_new') }}" class="btn btn-primary">Новая доска</a>
+    </p>
+
+    {% if not boards %}
+      <p class="muted">У вас пока нет ни одной доски.</p>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Создана</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in boards %}
+            <tr>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.id }}</a></td>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.title }}</a></td>
+              <td>{{ b.description }}</td>
+              <td>{{ b.created_at[:10] if b.created_at else '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </section>
+
   <div class="card">
     <h2>Дашборд</h2>
     <p>Вы вошли как {{ user.username }} (роль: {{ user.role }}).</p>
     <p>Здесь находится основная функциональность приложения.</p>
   </div>
 {% endblock %}
-  </body>
+</body>
 </html>

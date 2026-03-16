@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Доска: {{ board.title }}{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1>{{ board.title }}</h1>
+
+    <p class="muted">
+      Владелец: {{ board.owner_username }}<br />
+      Создана: {{ board.created_at[:10] }}
+      {% if board.is_archived %}
+        <br /><span class="badge badge-deleted">В архиве</span>
+      {% endif %}
+    </p>
+
+    {% if board.description %}
+      <h2>Описание</h2>
+      <p>{{ board.description }}</p>
+    {% endif %}
+
+    {% if can_edit %}
+      <p>
+        <a href="{{ url_for('column_create', board_id=board.id) }}" class="btn btn-primary">Новая колонка</a>
+      </p>
+    {% endif %}
+
+    <div class="board-container">
+      {% for col in columns %}
+        <div class="column" data-column-id="{{ col.id }}">
+          <div class="column-header">
+            <h3>{{ col.name }}</h3>
+            {% if col.wip_limit %}
+              {% set current_cards = cards_by_column.get(col.id, []) %}
+              WIP: {{ current_cards|length }} / {{ col.wip_limit }}
+            {% endif %}
+          </div>
+
+          <div class="column-body">
+            {% set cards = cards_by_column.get(col.id, []) %}
+
+            {% if not cards %}
+              <p class="muted">В этой колонке пока нет карточек.</p>
+            {% else %}
+              <ul class="card-list">
+                {% for card in cards %}
+                  <li class="card-item">
+                    <h4>{{ card.title }}</h4>
+                    {% if card.description %}
+                      <p>{{ card.description }}</p>
+                    {% endif %}
+
+                    {% if can_edit %}
+                      <details class="card-edit">
+                        <summary>Редактировать</summary>
+                        <form method="post" action="{{ url_for('card_edit', card_id=card.id) }}" class="form">
+                          <div class="form-group">
+                            <label>Заголовок</label>
+                            <input type="text" name="title" value="{{ card.title }}" required />
+                          </div>
+                          <div class="form-group">
+                            <label>Описание</label>
+                            <textarea name="description" rows="3">{{ card.description }}</textarea>
+                          </div>
+                          <button type="submit" class="btn btn-secondary">Сохранить</button>
+                        </form>
+                      </details>
+
+                      <form method="post" action="{{ url_for('card_move', card_id=card.id) }}" class="form-inline card-move-form">
+                        <label>Перенести в колонку:</label>
+                        <select name="new_column_id">
+                          {% for target in columns %}
+                            <option value="{{ target.id }}" {% if target.id == col.id %}selected{% endif %}>
+                              {{ target.name }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-secondary">Перенести</button>
+                      </form>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+
+          {% if can_edit %}
+            <div class="card-create">
+              <h4>Добавить карточку</h4>
+              <form method="post" action="{{ url_for('card_create', column_id=col.id) }}" class="form">
+                <div class="form-group">
+                  <label>Заголовок</label>
+                  <input type="text" name="title" required />
+                </div>
+                <div class="form-group">
+                  <label>Описание (необязательно)</label>
+                  <textarea name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <p style="margin-top: 16px;">
+      <a href="{{ url_for('dashboard') }}">К дашборду</a>
+    </p>
+  </section>
+{% endblock %}

@@ -1,0 +1,17 @@
+    <p class="muted">
+      {% if page.author_username %}
+        Автор: {{ page.author_username }}<br />
+      {% endif %}
+      Создана: {{ page.created_at }}
+      {% if page.revision_created_at %}
+        · Ревизия: {{ page.revision_created_at }}
+      {% endif %}
+    </p>
+
+    <div class="wiki-content">
+      {% if page.content is not none and page.content != '' %}
+        <pre>{{ page.content }}</pre>
+      {% else %}
+        <p class="muted">Нет опубликованной версии.</p>
+      {% endif %}
+    </div>
