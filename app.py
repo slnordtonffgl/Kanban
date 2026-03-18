@@ -11,8 +11,11 @@ from views_auth import (login_form_view, login_view, logout_view, register_form_
 from views_admin import (admin_settings_view,admin_settings_save_view,admin_users_view,admin_user_create_view,admin_user_archive_view,admin_user_restore_view,
 admin_user_delete_view
 )
-from views_boards import (board_new_view,board_create_view,board_view_view,card_create_view
+from views_boards import (
+board_new_view,board_create_view,board_view_view,column_create_view,card_create_view,card_edit_view,card_move_view,collaborator_add_view,collaborator_remove_view,board_archive_view,board_restore_view, board_delete_view
 )
+
+
 app = Flask(__name__)  
 app.secret_key = 'your-super-secret-key-here'
 
@@ -30,6 +33,17 @@ def get_registration_open():
 def card_create(column_id):
     return card_create_view(column_id)
 
+@app.post("/boards/<int:board_id>/archive")
+def board_archive(board_id):
+    return board_archive_view(board_id)
+
+@app.post("/boards/<int:board_id>/restore")
+def board_restore(board_id):
+    return board_restore_view(board_id)
+
+@app.post("/boards/<int:board_id>/delete")
+def board_delete(board_id):
+    return board_delete_view(board_id)
 
 @app.get("/login")
 def login_form():
@@ -55,6 +69,19 @@ def register():
 def dashboard():
     return dashboard_view()
 
+@app.post("/boards/<int:board_id>/collaborators/add")
+def collaborator_add(board_id):
+    return collaborator_add_view(board_id)
+
+
+@app.post("/boards/<int:board_id>/collaborators/remove")
+def collaborator_remove(board_id):
+    return collaborator_remove_view(board_id)
+
+@app.route("/boards/<int:board_id>/columns/new", methods=["POST"])
+def column_create(board_id):
+    from views_boards import column_create_view  # Импорт внутри функции
+    return column_create_view(board_id)
 
 
 @app.route("/")
@@ -108,6 +135,9 @@ def inject():
         "registration_open": get_registration_open(),
     }
     
+@app.post("/cards/<int:card_id>/move")
+def card_move(card_id):
+    return card_move_view(card_id)
 
 @app.get("/boards/new")
 def board_new():

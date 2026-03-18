@@ -73,6 +73,16 @@ def init_db():
         )
     """)
     conn.execute("""
+        CREATE TABLE IF NOT EXISTS columns (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            board_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            position INTEGER DEFAULT 0,
+            wip_limit INTEGER,
+            FOREIGN KEY (board_id) REFERENCES boards(id)
+        )
+    """)
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS revisions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             page_id INTEGER NOT NULL,
@@ -102,6 +112,33 @@ def init_db():
         FOREIGN KEY (created_by) REFERENCES users(id)
     )
 """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS collaborators (
+            board_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            role TEXT NOT NULL CHECK (role IN ('viewer', 'editor')),
+            PRIMARY KEY (board_id, user_id),
+            FOREIGN KEY (board_id) REFERENCES boards(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS card_activity (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            card_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            action_type TEXT NOT NULL CHECK (action_type IN ('created', 'edited', 'moved')),
+            from_column_id INTEGER,
+            to_column_id INTEGER,
+            created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+            FOREIGN KEY (card_id) REFERENCES cards(id),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (from_column_id) REFERENCES columns(id),
+            FOREIGN KEY (to_column_id) REFERENCES columns(id)
+        )
+    """)
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS settings (

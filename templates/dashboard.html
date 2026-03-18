@@ -41,6 +41,41 @@
         </tbody>
       </table>
     {% endif %}
+
+        <h2 style="margin-top: 32px;">Доски, в которых вы участвуете</h2>
+
+    {% if not collaborator_boards %}
+      <p class="muted">Вы пока не приглашены ни на одну доску других пользователей.</p>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Роль</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in collaborator_boards %}
+            <tr>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.id }}</a></td>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.title }}</a></td>
+              <td>{{ b.description }}</td>
+              <td>
+                {% if b.collab_role == 'editor' %}
+                  Редактор
+                {% elif b.collab_role == 'viewer' %}
+                  Только просмотр
+                {% else %}
+                  {{ b.collab_role }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
   </section>
 
   <div class="card">
@@ -49,5 +84,31 @@
     <p>Здесь находится основная функциональность приложения.</p>
   </div>
 {% endblock %}
+    <h2 style="margin-top: 32px;">Архивные доски</h2>
+
+    {% if not archived_boards %}
+      <p class="muted">У вас пока нет архивных досок.</p>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Создана</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in archived_boards %}
+            <tr>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.id }}</a></td>
+              <td><a href="{{ url_for('board_view', board_id=b.id) }}">{{ b.title }}</a></td>
+              <td>{{ b.description }}</td>
+              <td>{{ b.created_at[:10] if b.created_at else '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
 </body>
 </html>

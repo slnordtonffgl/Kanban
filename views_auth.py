@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 from db import get_conn
 from datetime import datetime
-from views_boards import boards_for_user
+from views_boards import boards_for_user, collaborator_boards_for_user, archived_boards_for_user
 
 def current_user():
     user_id = session.get("user_id")
@@ -104,14 +104,21 @@ def register_view():
 
 def dashboard_view():
     if not is_logged_in():
-        # next=request.url — чтобы при желании можно было потом вернуть пользователя обратно
         return redirect(url_for("login_form", next=request.url))
 
     user = current_user()
     if user is None:
-        # На всякий случай: если user_id в сессии битый
         session.clear()
         return redirect(url_for("login_form"))
 
     boards = boards_for_user()
-    return render_template("dashboard.html", user=user,boards=boards)
+    collaborator_boards = collaborator_boards_for_user()
+    archived_boards = archived_boards_for_user()
+
+    return render_template(
+        "dashboard.html",
+        user=user,
+        boards=boards,
+        collaborator_boards=collaborator_boards,
+        archived_boards=archived_boards,
+    )

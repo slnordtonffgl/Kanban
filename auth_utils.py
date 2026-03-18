@@ -4,25 +4,46 @@ from datetime import datetime
 from db import get_conn
 
 def get_board_role(board_id):
-    """Вернуть роль текущего пользователя для доски: 'owner' или None."""
+    """Вернуть роль текущего пользователя для доски: 'owner', 'editor', 'viewer' или None."""
     user = current_user()
     if user is None:
         return None
 
     conn = get_conn()
+
+    # Сначала проверяем, не является ли пользователь владельцем доски
     board = conn.execute(
         "SELECT owner_id FROM boards WHERE id = ?",
         (board_id,),
     ).fetchone()
-    conn.close()
 
     if board is None:
+        conn.close()
         return None
 
     if board["owner_id"] == user["id"]:
+        conn.close()
         return "owner"
 
-    # Позже сюда можно будет добавить проверки для приглашённых участников
+    # Если не владелец — ищем запись в collaborators
+    collab = conn.execute(
+        """
+        SELECT role
+        FROM collaborators
+        WHERE board_id = ? AND user_id = ?
+        """,
+        (board_id, user["id"]),
+    ).fetchone()
+
+    conn.close()
+
+    if collab is None:
+        return None
+
+    role = collab["role"]
+    if role in ("viewer", "editor"):
+        return role
+
     return None
 
 def can_view_board(board_id):
@@ -33,7 +54,7 @@ def can_view_board(board_id):
 def can_edit_board(board_id):
     """Можно ли редактировать доску (менять название, добавлять колонки и карточки)."""
     role = get_board_role(board_id)
-    return role == "owner"
+    return role in ("owner", "editor")
 
 
 def is_board_owner(board_id):
