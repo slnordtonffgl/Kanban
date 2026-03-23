@@ -42,7 +42,7 @@
               <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" class="inline-form">
                 <button
                   type="submit"
-                  class="btn btn-sm btn-danger"
+                  class="button-delete"
                   onclick="return confirm('Удалить пользователя безвозвратно? Это действие нельзя отменить.')"
                 >
                   Удалить навсегда

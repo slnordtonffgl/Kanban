@@ -1,15 +1,6 @@
-/*body { font-family: sans-serif; margin: 20px; background-color:rgb(126, 232, 247);}
-h1 { color: #486a86; }
-.flash-message {
-  padding: 12px 16px;
-  margin: 5px 0;
-  border: 1px solid #080072;
-  border-radius: 4px;
-  background-color: #3675be;
-  color: #1cddff;
+body{
+  background-color: #96faf5;
 }
-*/
-/* Карточки НЕ ДВИГАЮТСЯ при любом hover */
 .card {
   position: relative;
   background: rgba(71, 166, 255, 0.95);
@@ -23,7 +14,7 @@ h1 { color: #486a86; }
 .card:hover {
   box-shadow: 0 12px 40px rgba(0,0,0,0.15); /* Карточка только тень */
   transform: none !important; /* КРИТИЧНО: НЕ ДВИГАЕТСЯ */
-  background-color: rgba(71, 212, 255, 0.95);
+  background-color: rgba(37, 148, 223, 0.95);
 }
 
 /* КНОПКИ ДВИГАЮТСЯСЬ — голубой градиент */
@@ -36,20 +27,20 @@ h1 { color: #486a86; }
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  color: rgb(0, 202, 253);
+  color: rgb(6, 40, 90);
   text-decoration: none;
   position: relative;
   overflow: visible;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  background: linear-gradient(135deg, #4f86fe 0%, #1581fc 100%) !important;
   box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
 }
 .button-hover {
   position: relative;
   display: inline-block;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #4facfe 100%);
-  color: white;
+  background: linear-gradient(135deg, #2a89db 0%, #008cfe 50%, #4fccfe 100%);
+  color: rgb(19, 26, 112);
   border: none;
   border-radius: 12px;
   font-weight: 600;
@@ -92,14 +83,30 @@ h1 { color: #486a86; }
 
 
 .button-delete {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  background: linear-gradient(135deg, #1e0b75 0%, #1b5baf 100%);
+  color: #78bae0;
 }
 
 .button-delete:hover {
   transform: translateY(-6px) scale(1.05);
-  box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 20px 40px rgba(52, 44, 156, 0.4);
 }
- 
+
+.submit{
+  position: relative;
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2a89db 0%, #00d8fe 50%, #4fccfe 100%);
+  color: rgb(19, 26, 112);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 2; 
+}
+
 .card-buttons {
   display: flex;
   gap: 12px;
