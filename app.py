@@ -1,5 +1,5 @@
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template,session,request,url_for, redirect,abort,flash 
+from flask import Flask, render_template,session,request,url_for, redirect,abort,flash,g 
 import sqlite3
 from datetime import datetime
 from db import get_conn, init_db, insert_test_user, show_table
@@ -83,6 +83,11 @@ def column_create(board_id):
     from views_boards import column_create_view  # Импорт внутри функции
     return column_create_view(board_id)
 
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
+
 
 @app.route("/")
 def home():
@@ -157,5 +162,6 @@ if __name__ == "__main__":
     insert_test_user() # временно: добавим одного пользователя для проверки
 
     # По желанию: посмотреть содержимое таблицы в консоли
-    print(show_table())
+    users = show_table()
+    print(users if users else "Таблица пуста")
     app.run(debug=True)   

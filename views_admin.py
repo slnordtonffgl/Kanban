@@ -112,19 +112,30 @@ def admin_user_delete_view(user_id):
         abort(403)
 
     conn = get_conn()
-    u = conn.execute("SELECT id, username, role FROM users WHERE id = ?", (user_id,)).fetchone()
-    if u is None:
-        conn.close()
-        abort(404)
+    try:
+        # Проверяем пользователя
+        u = conn.execute("SELECT id, username, role FROM users WHERE id = ?", (user_id,)).fetchone()
+        if u is None:
+            conn.close()
+            abort(404)
 
-    if u["role"] == "admin":
-        conn.close()
-        flash("Нельзя удалить мастер-аккаунт.")
-        return redirect(url_for("admin_users"))
+        if u["role"] == "admin":
+            conn.close()
+            flash("Нельзя удалить мастер-аккаунт.")
+            return redirect(url_for("admin_users"))
 
-    conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
-    conn.commit()
-    conn.close()
+        # КРИТИЧНО: короткая транзакция
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        
+    except sqlite3.OperationalError as e:
+        if "locked" in str(e).lower():
+            flash("База заблокирована. Подождите 5 сек и повторите.")
+        else:
+            flash("Ошибка БД")
+    finally:
+        conn.close()  # ← ГАРАНТИРОВАННО закрываем!
 
     flash(f"Пользователь {u['username']} удалён безвозвратно.")
     return redirect(url_for("admin_users"))
+

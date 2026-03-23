@@ -6,9 +6,10 @@ app.secret_key = "dev-secret"
 DB_PATH = "database.db"
 
 def get_conn():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # строки как словари: row["column_name"]
-    conn.execute("PRAGMA foreign_keys = ON")  # включить внешние ключи (пригодятся позже)
+    conn = sqlite3.connect('your_database.db', timeout=15.0, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA foreign_keys = ON')
+    conn.execute('PRAGMA busy_timeout = 10000')  # 10 сек ожидания
     return conn
 
 def _migrate_content_to_revisions(conn):
@@ -168,13 +169,21 @@ def insert_test_user():
     conn.close()
 
 def show_table():
-    """
-    Вернуть содержимое таблицы users как список строк.
-    Удобно вызывать из консоли: print(show_table()).
-    """
     conn = get_conn()
-    rows = conn.execute(
-        "SELECT * FROM users ORDER BY id"
-    ).fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    try:
+        cursor = conn.execute("SELECT * FROM users")
+        rows = cursor.fetchall()
+        
+        if not rows:  # Пустая таблица
+            return []
+            
+        # Правильно конвертируем Row/tuple в dict
+        return [dict(row) for row in rows]
+        
+    except Exception as e:
+        print(f"Ошибка БД: {e}")
+        return []
+    finally:
+        conn.close()
+
+
