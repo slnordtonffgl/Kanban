@@ -1,12 +1,13 @@
-from flask import Flask, render_template,session,request,url_for, redirect,abort,flash  
 import sqlite3
+import os
 
-app = Flask(__name__)
-app.secret_key = "dev-secret"
-DB_PATH = "database.db"
+
+import os
+
+DB_PATH = os.environ.get("KANBAN_DB_PATH", "database.db")
 
 def get_conn():
-    conn = sqlite3.connect('your_database.db', timeout=15.0, check_same_thread=False)
+    conn = sqlite3.connect(DB_PATH, timeout=15.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
     conn.execute('PRAGMA busy_timeout = 10000')  # 10 сек ожидания
@@ -81,6 +82,17 @@ def init_db():
             position INTEGER DEFAULT 0,
             wip_limit INTEGER,
             FOREIGN KEY (board_id) REFERENCES boards(id)
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS pages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL UNIQUE,
+            slug TEXT NOT NULL UNIQUE,
+            author_id INTEGER,
+            is_locked INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+            FOREIGN KEY (author_id) REFERENCES users(id)
         )
     """)
     conn.execute("""

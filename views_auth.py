@@ -19,7 +19,7 @@ def is_logged_in():
 
 def is_admin():
     user = current_user()
-    return user is not None and user.get("role") == "admin"
+    return user is not None and user["role"] == "admin"
 
 def get_registration_open():
     conn = get_conn()

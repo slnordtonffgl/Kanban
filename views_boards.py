@@ -228,18 +228,29 @@ def archived_boards_for_user():
 def board_view_view(board_id: int):
     conn = get_conn()
     board = conn.execute("SELECT * FROM boards WHERE id = ?", (board_id,)).fetchone()
-    conn.close()
-
-    if not board or not can_view_board(board_id):
+    if board is None:
+        conn.close()
         abort(404)
 
-    # Заглушка - замените на полный код
-    columns = []  # columns_for_board(board_id)
+    if not can_view_board(board_id):
+        conn.close()
+        abort(404)
+
+    columns = conn.execute(
+        """
+        SELECT id, board_id, title, position, wip_limit
+        FROM columns
+        WHERE board_id = ?
+        ORDER BY position ASC, id ASC
+        """,
+        (board_id,),
+    ).fetchall()
+    conn.close()
+
     cards_by_column = cards_for_board(board_id)
-    can_edit = True  # can_edit_board(board_id)
-    collaborators = []  # collaborators_for_board(board_id)
-    board = {"id": board_id, "title": "Test Board"}
+    collaborators = []  # можно добавить позже
     activity = recent_activity_for_board(board_id)
+    can_edit = can_edit_board(board_id)
 
     return render_template(
         "board.html",
@@ -392,7 +403,7 @@ def card_edit_view(card_id: int):
     conn.execute(
         """
         UPDATE cards
-        SET column_id = ?, position = ?, updated_at = (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+        SET title = ?, description = ?, updated_at = (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
         WHERE id = ?
         """,
         (title, description or "", card_id),
@@ -405,7 +416,7 @@ def card_edit_view(card_id: int):
     conn.commit()
     conn.close()
 
-    return redirect(url_for("board_view", board_id=board_id))
+    return redirect(url_for("board_view", board_id=card["board_id"]))
 
 def recent_activity_for_board(board_id: int, limit: int = 30):
     """Вернуть последние события по карточкам этой доски."""
